@@ -258,3 +258,6 @@ Si on a des poids de transit, sur des sommets, non orienté, alors 3 possibilit�
 log base entre 0 et 1 -> x->0 = +infini, x->inf = -infini, fonction strictement décroissante
 log base > 1 -> x->0 = -infini, x->inf = +infini, fonction strictement croissante
 
+loyd-Warshall : Bellman-Ford, mais sur au lieu d'aller d'un sommet s à n'importe où, on veut créer un tableau de tous les shortest paths de tous les points entre eux -> shortest_path[i][j].
+Pour ça, on fait 3 boucles for imbriquées et pour chaque k, j, i, on fait min(poids pour aller au voisin 1 + shortest path to j du voisin 1, poids pour aller au voisin 2 + shortest path to j du voisin 2, ..., n voisins)
+complexité max de n^3
