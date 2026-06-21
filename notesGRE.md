@@ -158,7 +158,7 @@ recherche d'arbre recouvrant de poids minimum (algorithmes voraces: étape par �
   On parcours les arêtes de la moins chère à la plus chère et on essaie de les ajouter à mon arbre. Si ça crée un cycle -> interdit, abort. Si ça ne crée pas un cycle, alors on l'ajoute.
   Complexité : n-1 <= m <=n(n-1)/2 et mEO(n^2) et nEO(m). Première phase de l'algo a un tri -> O(mlogm) O(mlogn) pour graphe simple. Deuxième phase O(mn), donc Kruskal : O(mn)
   Avec Structure Union-Find : O(mlogn + n^2)
-  Si on fait des trucs, À DETERMINER !!!!!, alors O(mlogn)
+  Si on fait des trucs,! À DETERMINER !!!!, alors O(mlogn)
 
 - Algorithme de Prim :
   parcours en largeur, not FIFO mais queue de priorité (coût d'ajout dans l'arbre).
@@ -169,6 +169,7 @@ recherche d'arbre recouvrant de poids minimum (algorithmes voraces: étape par �
   Chaque sommet regarde autour de lui et va vers son voisin le moins cher. Peut être exécuté en parallèle. Cela donne des morceaux. On les agglutine en un seul sommet et on repeat jusqu'à-ce qu'on ait un seul chemin.
 
 Démontrer que Kruskal / Prim sont des algorithmes optimaux :
+
 Coupe : les arêtes/arc allant de A vers !A où on peut couper les sommets liés en deux ensembles avec une droite. Ex:
 
 - T : arbre recouvrant de poids min,
@@ -204,7 +205,7 @@ Chu-Liu : Poids = 15 --> Vrai poids minimum
 - Regonfler
 
 Triangulation de Delaunay :
-Si on a 4 points -> 2 trianges de 3 points, alors on a 2 cercles de 3 sommets.
+Si on a 4 points -> 2 trianges de 3 points, lealors on a 2 cercs de 3 sommets.
 Si les cercles ont le même nombre de sommets à l'intérieur que de sommets sur leurs arêtes, alors ils appartiennent à la triangulation de Delaunay.
 "Sur un cycle, l'arête la plus lourde n'est pas dans un arbre recouvrant de poids min"
 Avec cette méthode, on voit direct si le cycle est de poids min, si pour toutes les arêtes de l'arbre recouvrant appartiennent à la triangulation de Delaunay.
@@ -258,6 +259,93 @@ Si on a des poids de transit, sur des sommets, non orienté, alors 3 possibilit�
 log base entre 0 et 1 -> x->0 = +infini, x->inf = -infini, fonction strictement décroissante
 log base > 1 -> x->0 = -infini, x->inf = +infini, fonction strictement croissante
 
-loyd-Warshall : Bellman-Ford, mais sur au lieu d'aller d'un sommet s à n'importe où, on veut créer un tableau de tous les shortest paths de tous les points entre eux -> shortest_path[i][j].
+Floyd-Warshall : Bellman-Ford, mais sur au lieu d'aller d'un sommet s à n'importe où, on veut créer un tableau de tous les shortest paths de tous les points entre eux -> shortest_path[i][j].
 Pour ça, on fait 3 boucles for imbriquées et pour chaque k, j, i, on fait min(poids pour aller au voisin 1 + shortest path to j du voisin 1, poids pour aller au voisin 2 + shortest path to j du voisin 2, ..., n voisins)
 complexité max de n^3
+
+Alternative à FloydWarshall : Algorithme de Dantzig
+
+Table de distance à disposition -> 
+  - Graphe orienté : on retient tous les arcs vérifiant lj = li + cij -> tous les plus courts chemins depuis s.
+
+Algorithme de Johnson : complexité mnlogn, supporte les poids négatifs (pas les circuits absorbants)
+1. On rajoute un sommet en on applique Bellman-Ford avec ce sommet comme source. On obtient des distances qui représentent le potentiel delta_i. On utilise ce potentiel pour définir des nouveaux poids, aka. coûts réduits : c_ij' = c_ij + delta_i - delta_j pour tout (i, j) appartenant à l'ensemble de départ. Plus français : poids de arc ij + poids du sommet i - poids du sommet j = nouveau poids.
+Il est connecté à chaque sommets du graphe et on vérifie le chemin le plus court de chaque sommets. Il y a un poids de 0 entre le sommet de départ et les autres sommets, mais c'est pas toujours lui qui est sélectionné, car il y a des poids négatifs.
+
+2. On fait un nouveau graphe avec les nouveaux poids, en enlevant le sommet auxiliaire, et on applique Dijkstra sur ce graphe. Le nouveau graphe devrait n'avoir que des poids positifs.
+
+Modélisation de graphe en couches:
+- n+1 couches associées aux trimestres de 0 à N
+- dans chaque couche i, les sommets correspondent aux stocks possibles en fin de trimestre i (= en début de trimestre i+1, avant commande)
+
+
+Chapitre 7 - Flots dans les réseaux
+
+Faire transiter un max depuis la source jusqu'au puits en respectant les capacités et en conservant les quantités aux sommets intermédiaires.
+
+sommet source s (norm. sans prédécesseurs)
+sommet puits t (norm. sans successeurs)
+
+flot x de s à t : fonction qui vérifie que tout ce qui rentre dans un sommet en ressort.
+nombres x_ij = quantités de flot ou flux transitant par les arcs du réseau.
+
+flot compatible (ou admissible ou réalisable) : non négatif et ne dépasse pas cap. max.
+
+valeur f d'un flot de s à t : équations de conservation du flot :
+flux entrant en i (somme des prédécesseurs de i : x_ij) - flux sortant de i (somme des successeurs de i : x_ij)
+B*x-> = 0-> où B est la matrice d'incidence sommets-arcs du réseau
+
+
+Augmentation : flèche pleine dans R = flèche vide dans l'autre sens dans R*, flèche vide dans R = flèche vide dans R* dans le même sens.
+Ford - Fulkerson : construire R*, chercher le chemin de s à t. si succès, augmenter. Sinon, on a déjà le flot de valeur max.
+
+
+
+Graphe complet : graphe simple, non orienté, où toute paire de sommets distincts est reliée par une arête, K_n
+Graphe complémentaire G! d'un graphe G : ensemble des arêtes qui ne font pas partie de G.
+Tournoi : graphe complet non orienté, au plus un sommet sans préd et au plus un sommet sans succ.
+Graphe biparti : 2 partitions de sommets A et B disjoints ; toutes les arêtes ont une extrémité dans A et dans B. Les cycles ont un nombre pair d'arêtes.
+Graphe biparti complet : simiple, possédant un nombre maximal d'arêtes
+Couplage : sous ensemble d'arêtes M tel que deux arêtes quelconques de M n'ont pas d'extrémités communes.
+Couplage maximum : couplage dont le cardinal est maximal
+Couplage parfait : chaque sommet fait partie d'un couplage. -> nb de sommets impair ou nb d'arêtes pair.
+
+Théorème de Berge : on retire une arête et on rajoute les arêtes non communes qui ne lui sont pas connectées. repeat.
+-> peut créer des couplages alternés, p.ex dans un couplage de chaîne, augmentés, car on trouve des chaines alternées augmentantes, min +1. Différence symétrique.
+
+Recouvrement : sous-ensemble d'arêtes de G tel que chaque sommet du graphe est l'extrémité d'au moins une arête du sous ensemble.
+Transversal : sous ensemble de sommets de G tq chaque arête incidente avec au moins un sommet du sous ensemble.
+
+graphe planaire: graphe dans le plan sans arête qui se croise. 
+les graphes connexes planaires
+euler: n_sommets - m_arêtes + f_faces = 2 (graphe planaire simple et connexe)
+isthme : arête qui agit comme un pont dans un graphe.
+
+l'isthme ne borde qu'une face
+les autres arêtes bordent 2 faces.
+
+simple
+m ≤ 3n − 6
+
+biparti simple
+m ≤ 2n − 4
+
+formule d'euler fonctionne aussi en 3d.
+
+Pour avoir un graphe planaire on peut faire une projection d'un graphe 3d en le mettant dans une sphère et en traçant dans le plan à partir du pôle nord.
+
+Construire un graphe eulérien :
+Contexte - que des arêtes de degrés pairs, et deux de degrés impair, celui de départ et de fin, car arc pas d'arc sortant / pas d'arc entrant.
+Les sommets ont tous le même nb d'entrant que de sortant, mais ceux qui n'en ont pas sont de degré impair, avec 1 de trop ou de manquant.
+
+1. soit sommet r
+2. déterminer l'anti-arborescence de r
+3. noter l'ordre d'introduction dans le circuit : parcourir l'arborescence normale de r et noter l'ordre
+
+Il existe v £ V tq tous les arcs incidents à v ne sont pas dans le circuit
+
+Rappel : nb pair de sommets impairs.
+
+Hamilton : euler mais sommets au lieu d'arêtes
+
+revoir ex 5.4

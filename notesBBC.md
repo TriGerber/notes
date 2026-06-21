@@ -62,3 +62,18 @@ division cellulaire de spermatozoïdes et ovules. 1 cellule avec 2 différents c
 ## PCR - Polymerase Chain Reaction
 
 diviser des cellules en lab
+
+
+Transcrit : portion d'ADN transcrite en molécule d'ARN
+UTR : région transcrite mais pas traduite
+introns non-codants et exons codants -> on enlève les introns :
+Eukaryote : Promoteur|exon1|intron1|exon1|intron1|exon1|intron1|exon1
+introns éliminés -> exon1|exon2|exon3|exon4 -> UTR|Codant|UTR
+
+transcriptome : ensemble des arn transcrits. Utile pour savoir quels gènes sont exprimés ou réprimés selon les conditions, comparer, comprendre les mécanismes, évolution et développement.
+
+Puce à ADN : rayons -> couleurs -> map du sample de test et du sample de référence -> couleurs font la diff entre les deux.
+ARN-Seq : pas besoin d'infos sur les gènes avant l'analyse, plus de précision
+1. Conception expérimentale : question biologique, qu'est-ce qu'on veut faire.
+2. Extraction et purification de l'ARN
+3. 

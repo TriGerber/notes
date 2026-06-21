@@ -218,3 +218,122 @@ ACP : Analyse en Composantes Principales
 
 On essaie d'avoir un petit nombre de CP qui représentent p.ex 80% de la variance.
 
+
+# Chapitre 6 - Sélection des attributs
+Sélectionner un sous ensemble optimal d'attributs -> réduire le nombre de dimensions.
+
+Méthodes:
+1. filtrage
+
+sklearn: SelectKBest, SelectPercentile
+
+P.ex calculer le coeff de correlation avec les différents inputs, puis sélectionner ceux qui ont les plus hautes valeurs.
+
+2. wrappers (modulaire)
+
+   SequentialFeatureSelector: direction('forward' ou 'backward'), n_features_to_select, méthode 'Transform'
+
+   teste un module de ML: 
+   NO : recherche exhaustive (examiner tous les sous ensembles)
+   YES : recherche séquentielle
+   -->
+   Recursive Feature Elimination: recherche décrémentale qui fournit des scores d'importance après entrainement.
+   RFE: entraine le ml, supprime l'attribut le moins important, recommence n fois avec d'autres features
+   RFECV: tous les nb possibles d'attributs, puis choisit le meilleur en termes de scores du module de ML, avec validation croisée.
+
+
+
+3. intégrées aux algos de ML
+recherche séquentielle incrémentale : 1 à m -> prendre les m attributs qui ont le score le plus élevé en entrainant un modèle beaucoup trop de fois
+' ' décrémentale : supprimer les attributs au lieu de les ajouter.
+- LASSO: régression linéaire + pénalité si trop d'attributs
+- Recursuve Feature Elimination
+implémentation: pipeline -> feature_selection: SelectFromModel(...), puis classification: RandomForestClass...
+
+# Chapitre 7
+
+7. Images
+Systèmes de coordonnées
+   - raster : commencer en haut à gauche, balayage de gauche à droite haut en bas
+   - cartésiennes : en bas à gauche à l'origine, x, y
+   - cartésiennes avec origine au centre.
+MNIST: chiffres de 0 à 9; CIFAR10: 6 animaux, 4 véhicules; CIFAR100: 100 classes avec 20 classes * 5 sous-classes
+
+- Classer sans attributs; juste avec des pixels -> kNN (nul)
+- Histogramme des intensités en gris ou r / g / b : P(I) = N(I) / N -> probabilité d'avoir une certaine intensité -> intensité moyenne, disperstion, entropie(dispersion, -Sum(P(I)log(P(I)))), variance (ordre 2), skewness (ordre 3), kurtosis (ordre 4)
+- Segmentation en composantes connexes : identifier des blobs, des objets qui ont des pixels connectés
+- Filtrage : matrice 3x3 -> 1 valeur=somme des 9.
+   - Prewitt : détecte valeurs de la matrice horizontal / vertical pour détecter des lignes verticales/horizontales
+   - Sobel : approx. gaussienne : dérivée du changement d'intensité (h/v) puis diviser par 8 -> matrice 3x3
+- Lissage : moyenne des pixels adjacents
+   - Filtre gaussien : poids des voisins avec un poids décroissant selon la distance des voisins.
+- Pyramide gaussienne : ajouté à l'image originale un floutage puis réduction, e.g. 1/2, 1/4, 1/8, 1/16, ...
+- Matrices de gradients (directions d'intensité) : SIFT : patterns de gradients
+   - SIFT: 16x16 pixels -> gradients de chaque pixel -> 16x4x4 -> 16 sous-fenêtres x 8 orientations -> angle histogram -> donne des vecteurs pour classification contenant les angles.
+   -> appariement des descripteurs entre deux images
+- Réseaux convolutifs - feature learning
+
+8. Textes
+
+9. Audio
+
+10. Séries temporelles
+
+11. Systèmes de recommandation
+
+
+
+# Chapitre 8 - Attributs pour les données textuelles
+
+- Tokenisation
+- Lemming : enlever les temps, tout mettre au masculin, au singulier
+- Stemming : réduire aux racines
+Mots inconnus ou fautes d'orthographes ett 
+--> rajouter des subwords. Dans le réseau, on a p.ex 20k mots, 10k subwords, 200 lettres/ponctuation/chiffres
+on construit les subwords avec p.ex les n fragments les plus fréquents dans tout le dataset.
+'E' -> 'EC' (plus fréquent)
+'EC' -> 'ECA' (plus fréquent) -> ... -> 'ECART'
+
+- Vectorizers:
+   - Count Vectorizer : tableau avec colonnes = documents, lignes = mots, et dans les cases le count du mot/subword/autre dans les documents. --> matrice termes-documents
+
+vecteurs sentence-BERT : vecteurs qui permettent de détecter la similarité entre des phrases qui ont un sens similaire avec du ML. (sentence_transformers -> model = SentenceTransformer("all-MiniLM-L6-v2"), puis model.encode(sentences), puis model.similarity)
+
+# Chapitre 9 - Audio
+
+Attributs temporels : 
+- enveloppe du signal : valeur absolue maximale du signal
+- RMS (root mean square) : moyenne des carrés des décibels mesurés
+- ZCR (zero-crossing rate) : nombre de fois qu'un signal passe par 0 (plus faible sur les voyelles / instruments, plus grand  certaines consonnes, percussions, ...)
+- fourier transform STFC
+- MFCC : coefficients, spectre du son sur court terme
+- Mel-frequency kepstre Cepstrum Log power transform, MFCC.
+- STFT : intensité de chaque fréquence dans chaque fenêtre = carré du module du coeff fourier
+
+S Composante saisonnière
+p.ex dimanche chute de ventes
+Variations saisonnières : Additives, Multiplicatives. Causes : saisons, fêtes, etc.
+Effet calendaires : weekend, vacances, fêtes qui changent de jours chaque année et weekends qui se décalent chaque année -> si on cherche par mois, problème.
+
+T tendance
+sur le long terme, ça augmente / diminue, évolution long terme
+
+C Composante cyclique
+fluctuations à long terme qui se répètent, mais pas fixe
+p.ex augmentation de la bourse puis crash, des fois en un jour, des fois en un mois
+
+I irrégulière.
+quand on a tout enlevé, c'est un bruit, p.ex le hasard
+
+Modèle additif d'une série Y : Y_t = S_t + T_t + C_t + I_t
+
+1. détecter puis enlever la c. saisionnière, p.ex avec un lissage
+- Lissage:
+   - moyenne mobile : moyenne sur n précédents et n suivants
+   - exponentiel : impact décroissant exponentiellement des prédécesseurs E1 = Y1 -> E2 = wY_t + (1-w)E_t
+      exponential prévision  : F_t+1 = F_t + w(Y_t - F_t)
+   - exponentiel de Holt : permet de saisir la tendance d'une série et variation saisonnière avec 2 eq et 2 const. 
+2. détecter puis enlever la tendance, p.ex avec une régression
+3. détecter puis enlever la c. cyclique, p.ex en considérant le rapport Y_t/T_t
+4. Il reste la c. irrégulière (résidu ou bruit)
+

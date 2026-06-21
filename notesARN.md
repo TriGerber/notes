@@ -222,3 +222,80 @@ Convolution layers : 9 x, 9 poids + 1 biais -> into 1 neurone y = sum(wixi) + b
 ## Maxpooling
 
 reduce  a n:n matrix to a n/m:n/m matrix by taking the max value within m^2 cases.
+
+# Chapter 7
+
+Shallow Neural Network:
+On peut approximer avec une seule couche cachée, n'importe quelle fonction.
+Avant 2006, ça donnait des mauvais résultats donc peu d'intérêt.
+wide but shallow (ensemble neural networks) :
+- plusieurs réseaux pareils mais avec différents paramètres
+- même modèle mais train en utilisant différents subsets de training dataset
+- plusieures architectures différentes
+
+Canishing gradients problem: E=1/2S(t-yL)^2
+YL = fL(S(W(L)Y(L-1) + b(L-1)))
+
+On utilise des dérivées pour remonter dans les couches, mais puisque c'est exponentiel, 0.25^3 = 0.016 -> les couches profondes sont de plus en plus difficiles à ajuster.
+C'est une descente de gradient, et le gradient devient de plus en plus petit au fur et à mesure qu'on progresse dans les couches profondes.
+
+Deep Belief Network: multilayers et bidirectionnel, unsupervised learning, pas très successful
+
+CNN:
+
+auto-encoder: pré-ajustement des poids. -> tries to rebuild its own input based off a compressed version of the input itself.
+
+1. Spacial processing & weight sharing: convolution, réduction de l'image avec p.ex matrice 3x3, on utilise les même poids pour toute l'image. L'output est aussi une image, mais réduite et modifiée selon le filtre. On peut rajouter du padding set à 0 sur les bords et passer le filtre dessus pour avoir une image de même taille que l'originale. Ou bien en réduisant la taille de l'image (5x5 -> 2x2 = maxpooling: 25 pixels -> 4 pixels -> 4 outputs possibles)
+
+2. Multiple convolutions avec différents kernels (filtres) pour détecter différentes features
+
+3. Hierarchical feature detection: les différents levels intermédiaires qui deviennent de plus en plus abstraits (input : image pleine, 1ere couche: images de lignes et patterns, 2e couche: plus abstrait, ..., output)
+
+4. New activation function, in the output layer
+1: Z = (e^2, e, 1)
+2: softmax: Pk = Zk/(e^2+e+1)
+
+5. Dropout to avoid overfitting: randomly kill neurons at the beginning of new epochs and retrain the model to introduce change.
+Avoiding overfitting:
+- more data
+- data augmentation: images -> rotation, translation, zoom, crop, flips, perturbations, ...
+- architectures that generalize well
+- add regularization
+- add batch regulatization
+- reduce architecture complexity
+
+6. 
+
+# Chapter 8 - Architecture
+
+ILSVRC: ImageNet Large-Scale Visual Recognition Challenge.
+ImageNet : Amazon, plein d'images pour entrainer, 49k workers labeling images in 2007-2010
+AlexNet 2012 : ReLus instead of tanh, Data augmentation, Dropout, 62m parameters
+ZF Net 2013 : smaller kernel sizes 7x7, increased number of filters
+VVG Net 2014 (error 7.3%) : 3x3 filters, 1 pad, 2x2 maxpooling layers, stride 2, 140m parameters
+GoogLeNet 2015 (error 6.7%) : 100+ layers pas focément stacked up sequentially and without fully-connected layers. Uses 12x less weights than AlexNet. - Filter concatenation, Inception module (varie la grandeur des filtres, pour avoir des filtres précis). 28x28x192filtres -> ReLU -> 28x28x32 (résume les filtres)
+    Inception Networks : use 1x1 convolutions before 3x3 or 5x5 -> feature pooling --> less operations
+Batch Normalization : learnable normalization transform, applied to every mini-batch during learning process.
+sans batch normalization, la variable est pas expressive. C'est son amplitude, sa variation, son importance.
+
+a) VVG a 2.25x plus de paramètres que AlexNet
+b) AlexNet : 62m * 4B = 248MB
+
+Microsoft - ResNet (2015) (error 3.6): shortcut connections (blocks résiduels de 2-3 layers où on rajoute x à la fin pour avoir y = F(x) + x), 152 layers. On fait juste une addition entre les matrices pas de changement de taille.
+DenseNet (2017) : in each block, take all the x and add them to the inputs along with F(x). Les matrices changent de profondeur. même largeur et hauteur.
+
+# Chapter 9 - Transfer learning, embeddings and meta-learning
+
+
+
+
+
+# TE2 prep
+
+Zero-padding : ajouter des 0 en padding
+appliquer un filtre [[0, 1, 0], [1, 0, 1], [0, 1, 0]] à toute la matrice principale.
+multiplier le filtre en x,y avec la matrice en x,y
+ajouter le biais (biais de -4)
+=> 0\*1 + 1\*0 + 1\*2 + ... = 2
+2 - 4 = -2
+ReLu(-2) = 0
